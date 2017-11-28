@@ -13,6 +13,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Data.Constraint
+                     , Data.Constraint.Product
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.10 && <5
