@@ -5,6 +5,7 @@ import Prelude hiding (Functor, (.), id)
 import Control.Categorical.Functor
 import Control.Category
 import Data.Kind (Constraint)
+import Data.Semigroup
 
 data Dict a where Dict :: a => Dict a
 
