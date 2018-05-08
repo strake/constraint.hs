@@ -32,6 +32,7 @@ newtype a :- b = Sub (a => Dict b)
 instance Eq (a :- b) where Sub _ == Sub _ = True
 instance Ord (a :- b) where Sub _ `compare` Sub _ = EQ
 instance Show (a :- b) where showsPrec p (Sub _) = showParen (p > 10) $ showString "Sub Dict"
+instance Semigroup (a :- b) where (<>) = pure
 
 instance Category (:-) where
     id = Sub Dict
