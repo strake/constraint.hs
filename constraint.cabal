@@ -20,6 +20,7 @@ library
   -- other-extensions:    
   build-depends:       base >=4.10 && <5
                      , category >=0.1.2 && <0.3
+                     , unconstrained >=0.1 && <0.2
   -- hs-source-dirs:      
   default-language:    Haskell2010
   default-extensions:  UnicodeSyntax
