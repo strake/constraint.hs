@@ -27,6 +27,7 @@ instance a => Monoid (Dict a) where
 withDict :: Dict a -> (a => b) -> b
 withDict Dict b = b
 
+infixr 9 :-
 newtype a :- b = Sub (a => Dict b)
 
 instance Eq (a :- b) where Sub _ == Sub _ = True
@@ -40,6 +41,7 @@ instance Category (:-) where
 
 instance Functor (:-) (->) Dict where map (Sub a) Dict = withDict a Dict
 
+infixl 1 \\
 (\\) :: (b => c) -> (a :- b) -> (a => c)
 f \\ Sub Dict = f
 
