@@ -1,4 +1,7 @@
-module Data.Constraint (Constraint, Dict (..), withDict, (:-) (..), (\\), unmapDict) where
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ViewPatterns #-}
+
+module Data.Constraint (Constraint, Dict (..), withDict, (:-) (..), (\\), unmapDict, HasDict (..)) where
 
 import Prelude hiding (Functor, (.), id)
 
@@ -6,6 +9,7 @@ import Control.Categorical.Functor
 import Control.Category
 import Data.Kind (Constraint)
 import Data.Semigroup
+import Type.Reflection
 
 data Dict a where Dict :: a => Dict a
 
@@ -24,8 +28,8 @@ instance a => Monoid (Dict a) where
     mempty = Dict
     mappend = (<>)
 
-withDict :: Dict a -> (a => b) -> b
-withDict Dict b = b
+withDict :: HasDict a => a -> (ConstraintOf a => b) -> b
+withDict (dictOf -> Dict) b = b
 
 infixr 9 :-
 newtype a :- b = Sub (a => Dict b)
@@ -42,8 +46,28 @@ instance Category (:-) where
 instance Functor (:-) (->) Dict where map (Sub a) Dict = withDict a Dict
 
 infixl 1 \\
-(\\) :: (b => c) -> (a :- b) -> (a => c)
-f \\ Sub Dict = f
+(\\) :: (ConstraintOf a => c) -> a -> (HasDict a => c)
+f \\ (dictOf -> Dict) = f
 
 unmapDict :: (Dict a -> Dict b) -> a :- b
 unmapDict f = Sub (f Dict)
+
+class HasDict a where
+    type ConstraintOf a :: Constraint
+    dictOf :: a -> Dict (ConstraintOf a)
+
+instance HasDict (Dict a) where
+    type ConstraintOf (Dict a) = a
+    dictOf = id
+
+instance a => HasDict (a :- b) where
+    type ConstraintOf (a :- b) = b
+    dictOf (Sub Dict) = Dict
+
+instance HasDict (TypeRep (a :: k)) where
+    type ConstraintOf (TypeRep a) = (Typeable k, Typeable a)
+    dictOf tr = withTypeable tr (withTypeable (typeRepKind tr) Dict)
+
+instance HasDict (a :~: b) where
+    type ConstraintOf (a :~: b) = a ~ b
+    dictOf Refl = Dict
